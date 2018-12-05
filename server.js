@@ -20,6 +20,8 @@ app.get('/weather', getWeather);
 
 app.get('/yelp', getYelp);
 
+app.get('/movies', getMovies);
+
 function Location(res, query) {
   this.latitude = res.body.results[0].geometry.location.lat;
   this.longitude = res.body.results[0].geometry.location.lng;
@@ -39,6 +41,16 @@ function Yelp(data) {
   this.rating = data.rating;
   this.url = data.url;
 }
+
+function Movies(data) {
+  this.title = data.title;
+  this.overview = data.overview;
+  this.average_votes = data.vote_average;
+  this.total_votes = data.vote_count;
+  this.image_url = data.image_url;
+  this.popularity = data.popularity;
+  this.released_on = data.released_on;
+} 
 
 function searchToLatLong(query) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${
@@ -78,6 +90,20 @@ function getYelp(req, res) {
         return new Yelp(food)
       });
       res.send(foodInfo);
+    })
+    .catch(error => handleError(error));
+}
+
+function getMovies(req, res) {
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIEDB_API_KEY}&query=${req.query.data.search_query}`;
+
+  return superagent
+    .get(url)
+    .then(result => {
+      const movieInfo = result.body.results.map(movie => {
+        return new Movies(movie);
+      })
+      res.send(movieInfo);
     })
     .catch(error => handleError(error));
 }
