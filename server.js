@@ -18,6 +18,8 @@ app.get('/location', (req, res) => {
 
 app.get('/weather', getWeather);
 
+app.get('/yelp', getYelp);
+
 function Location(res, query) {
   this.latitude = res.body.results[0].geometry.location.lat;
   this.longitude = res.body.results[0].geometry.location.lng;
@@ -28,6 +30,14 @@ function Location(res, query) {
 function Weather(day) {
   this.forecast = day.summary;
   this.time = new Date(day.time * 1000).toDateString();
+}
+
+function Yelp(data) {
+  this.name = data.name;
+  this.image_url = data.image_url;
+  this.price = data.price;
+  this.rating = data.rating;
+  this.url = data.url;
 }
 
 function searchToLatLong(query) {
@@ -43,10 +53,9 @@ function searchToLatLong(query) {
 }
 
 function getWeather(req, res) {
-  const url = `https://api.darksky.net/forecast/${
-    process.env.WEATHER_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
+  const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
 
-  superagent
+  return superagent
     .get(url)
     .then(result => {
       const weatherInfo = result.body.daily.data.map(day => {
@@ -54,6 +63,21 @@ function getWeather(req, res) {
       });
       // console.log(Weather);
       res.send(weatherInfo);
+    })
+    .catch(error => handleError(error));
+}
+
+function getYelp(req, res) {
+  const url = `https://api.yelp.com/v3/businesses/search?location=${req.query.data.search_query}`
+
+  return superagent
+    .get(url)
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+    .then( result => {
+      const foodInfo = result.body.businesses.map(food => {
+        return new Yelp(food)
+      });
+      res.send(foodInfo);
     })
     .catch(error => handleError(error));
 }
