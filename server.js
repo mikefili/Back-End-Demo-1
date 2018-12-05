@@ -49,11 +49,11 @@ function getWeather(req, res) {
   superagent
     .get(url)
     .then(result => {
-      const weatherSummaries = result.body.daily.data.map(day => {
+      const weatherInfo = result.body.daily.data.map(day => {
         return new Weather(day);
       });
       // console.log(Weather);
-      res.send(weatherSummaries);
+      res.send(weatherInfo);
     })
     .catch(error => handleError(error));
 }
