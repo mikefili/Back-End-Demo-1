@@ -47,7 +47,7 @@ function Movies(data) {
   this.overview = data.overview;
   this.average_votes = data.vote_average;
   this.total_votes = data.vote_count;
-  this.image_url = data.image_url;
+  this.image_url = 'https://image.tmdb.org/t/p/w370_and_h556_bestv2/' + data.poster_path;
   this.popularity = data.popularity;
   this.released_on = data.released_on;
 } 
